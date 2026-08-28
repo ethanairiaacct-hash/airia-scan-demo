@@ -1,1 +1,41 @@
+name: Airia Code Scanner
 
+on:
+  # Run on pushes to main branches
+  push:
+    branches: [main, develop]
+  # Run on pull requests
+  pull_request:
+  # Allow manual trigger from Airia Platform
+  repository_dispatch:
+    types: [airia-scan-requested]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Pull Scanner Image
+        run: docker pull airiadevops305/airia-code-scanner:latest
+      - name: Create scan output directory
+        run: mkdir -p ${{ github.workspace }}/scan-output
+      - name: Run Code Scanner
+        run: |
+          docker run --rm \
+            --user $(id -u):$(id -g) \
+            -e REPOSITORY="${{ github.repository }}" \
+            -e BRANCH="${{ github.ref_name }}" \
+            -e COMMIT_SHA="${{ github.sha }}" \
+            -e EXECUTION_ID="${{ github.event.client_payload.executionId }}" \
+            -e AIRIA_API_URL="${{ secrets.AIRIA_API_URL }}" \
+            -e AIRIA_API_TOKEN="${{ secrets.AIRIA_API_TOKEN }}" \
+            -v "${{ github.workspace }}:/github/workspace:ro" \
+            -v "${{ github.workspace }}/scan-output:/output:rw" \
+            airiadevops305/airia-code-scanner:latest
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-results
+          path: scan-output/scan-results.json
