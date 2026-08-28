@@ -1,0 +1,21 @@
+# All values below are FAKE placeholders for code-scanner demonstration.
+app:
+  name: airia-scan-demo
+  environment: development
+
+llm:
+  default_provider: openai
+  default_model: gpt-4o
+  fallback_model: claude-sonnet-4-5-20250929
+
+providers:
+  openai:
+    api_key: "sk-demo-FAKE-openai-key-for-scanner-testing-0000000000"
+    base_url: "https://api.openai.com/v1"
+  anthropic:
+    api_key: "sk-demo-FAKE-anthropic-key-for-scanner-testing-000000"
+  huggingface:
+    token: "hf_EXAMPLEONLYnotarealtoken0000000000000"
+
+database:
+  connection_string: "postgresql://demo_user:EXAMPLE_PASSWORD@localhost:5432/demo"
